@@ -1,28 +1,28 @@
-import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow
-from PyQt6.QtCore import Qt
-from PyQt6.QtWebEngineWidgets import QWebEngineView
+import js
 
-class FullScreenBrowser(QMainWindow):
-    def __init__(self, url="https://duckduckgo.com"):
-        super().__init__()
-        self.setWindowTitle("Full-Screen Browser Overlay")
-        
-        # Full-screen, no title bar
-        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
-        self.showFullScreen()
-        
-        # Browser engine
-        self.browser = QWebEngineView()
-        self.browser.setUrl(url)
-        self.setCentralWidget(self.browser)
-        
-        # Disable right-click
-        self.browser.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
+# Get or create the iframe
+iframe_id = "duckduckgo-frame"
+iframe = js.document.getElementById(iframe_id)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    # Change the URL to any website you want
-    window = FullScreenBrowser("https://duckduckgo.com")
-    window.show()
-    sys.exit(app.exec())
+if not iframe:
+    iframe = js.document.createElement("iframe")
+    iframe.id = iframe_id
+    js.document.body.appendChild(iframe)
+
+# Style iframe to cover the whole screen
+iframe.style.position = "fixed"
+iframe.style.top = "0"
+iframe.style.left = "0"
+iframe.style.width = "100%"
+iframe.style.height = "100%"
+iframe.style.border = "none"
+iframe.style.margin = "0"
+iframe.style.padding = "0"
+iframe.style.zIndex = "9999"  # ensures it's on top
+
+# Load DuckDuckGo
+iframe.src = "https://duckduckgo.com"
+
+# Optional: function to navigate to any URL
+def go_to(url: str):
+    iframe.src = url
