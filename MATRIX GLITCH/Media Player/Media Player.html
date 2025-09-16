@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Media Player Overlay</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      width: 220px;
+      background: black;
+      border-right: 2px solid white;
+      padding: 15px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; /* pushes logo to bottom */
+    }
+
+    #sidebar h2 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    #recentList {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    .recent-btn {
+      display: block;
+      width: 100%;
+      background: #222;
+      color: white;
+      border: none;
+      padding: 10px;
+      margin: 5px 0;
+      cursor: pointer;
+      border-radius: 8px;
+      text-align: left;
+    }
+
+    .recent-btn:hover {
+      background: #444;
+    }
+
+    /* Sidebar logo */
+    #sidebar-logo {
+      width: 100%;
+      text-align: center;
+    }
+
+    #sidebar-logo img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    /* Main area */
+    #main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    #searchbar {
+      width: 60%;
+      padding: 15px;
+      border: 2px solid white;
+      border-radius: 30px;
+      background: black;
+      color: white;
+      font-size: 18px;
+      outline: none;
+    }
+
+    /* Overlay */
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    #overlay iframe, #overlay video {
+      width: 80%;
+      height: 70%;
+      border: none;
+      border-radius: 12px;
+      background: black;
+    }
+
+    #closeBtn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 30px;
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div>
+      <h2>Recently Opened</h2>
+      <div id="recentList"></div>
+    </div>
+    <div id="sidebar-logo">
+      <img src="https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Logos/Glitch%20Override%20Logo.png" alt="Glitch Override Logo">
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main">
+    <input id="searchbar" type="text" placeholder="Enter video or music link..." 
+           onkeypress="if(event.key==='Enter'){openMedia()}">
+  </div>
+
+  <!-- Overlay Player -->
+  <div id="overlay">
+    <span id="closeBtn" onclick="closeOverlay()">✖</span>
+    <iframe id="player" allowfullscreen></iframe>
+  </div>
+
+  <script>
+    const overlay = document.getElementById("overlay");
+    const player = document.getElementById("player");
+    const searchbar = document.getElementById("searchbar");
+    const recentList = document.getElementById("recentList");
+
+    let recentLinks = [];
+
+    function openMedia() {
+      const url = searchbar.value.trim();
+      if (!url) return;
+
+      // Show overlay
+      overlay.style.display = "flex";
+
+      // Load into iframe
+      player.src = url;
+
+      // Save to recent
+      addRecent(url);
+    }
+
+    function closeOverlay() {
+      overlay.style.display = "none";
+      player.src = "";
+    }
+
+    function addRecent(url) {
+      if (!recentLinks.includes(url)) {
+        recentLinks.unshift(url);
+        if (recentLinks.length > 10) recentLinks.pop(); // limit to 10
+        renderRecent();
+      }
+    }
+
+    function renderRecent() {
+      recentList.innerHTML = "";
+      recentLinks.forEach(link => {
+        const btn = document.createElement("button");
+        btn.className = "recent-btn";
+        btn.innerText = link;
+        btn.onclick = () => {
+          searchbar.value = link;
+          openMedia();
+        };
+        recentList.appendChild(btn);
+      });
+    }
+  </script>
+
+</body>
+        </html>
