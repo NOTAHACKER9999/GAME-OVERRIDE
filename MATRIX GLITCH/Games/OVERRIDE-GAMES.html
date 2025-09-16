@@ -1,1 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Matrix</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: black;
+      color: white;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
 
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: black;
+      border-right: 1px solid white;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .search-bar {
+      padding: 10px;
+      background: black;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 6px;
+      background: black;
+      border: 1px solid white;
+      color: white;
+      outline: none;
+    }
+    .game-button {
+      background: black;
+      color: white;
+      border: 1px solid white;
+      padding: 10px;
+      margin: 2px 5px;
+      text-align: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .game-button:hover {
+      background: #222;
+    }
+
+    /* Main area */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .topbar {
+      background: #111;
+      border-bottom: 1px solid white;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .content {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      overflow-y: auto;
+      padding: 10px;
+      gap: 10px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .content .game-button {
+      width: 200px;
+    }
+
+    /* Always show logo at bottom right */
+    .logo {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: 120px;
+    }
+
+    /* Overlay */
+    .game-area {
+      position: fixed;
+      top: 5vh;
+      left: 5vw;
+      width: 90vw;
+      height: 90vh;
+      background-color: rgba(0,0,0,0.95);
+      display: none;
+      z-index: 9999;
+      flex-direction: column;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #000;
+    }
+    .game-area iframe {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #000;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px; /* moved to top-left */
+      background-color: red;
+      color: #fff;
+      border: none;
+      font-size: 22px;
+      font-weight: bold;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10000;
+    }
+    .close-btn:hover {
+      background-color: darkred;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="Search games...">
+    </div>
+    <div id="sidebar-buttons"></div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="topbar">Recent Games</div>
+    <div class="content" id="main-content"></div>
+  </div>
+
+  <!-- Always visible logo -->
+  <img class="logo" src="https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Logos/Glitch%20Override%20Logo.png">
+
+  <!-- Game Overlay -->
+  <div class="game-area" id="game-area">
+    <button class="close-btn" id="close-game">X</button>
+    <iframe id="game-frame"></iframe>
+  </div>
+
+  <script>
+    const sidebarButtons = document.getElementById("sidebar-buttons");
+    const mainContent = document.getElementById("main-content");
+    const searchInput = document.getElementById("search");
+    const gameArea = document.getElementById("game-area");
+    const gameFrame = document.getElementById("game-frame");
+    const closeGame = document.getElementById("close-game");
+
+    let games = [];
+
+    async function fetchGames() {
+      try {
+        const res = await fetch("https://override-games.th15isar0bothi.workers.dev/");
+        games = await res.json();
+        renderSidebar(games);
+        renderRandomGames();
+      } catch (e) {
+        console.error("Failed to fetch games:", e);
+      }
+    }
+
+    function renderSidebar(list) {
+      sidebarButtons.innerHTML = "";
+      list.sort((a, b) => a.name.localeCompare(b.name));
+      list.forEach(game => {
+        const btn = document.createElement("div");
+        btn.className = "game-button";
+        btn.textContent = game.name.replace(".html", "");
+        btn.onclick = () => openGame(game.raw_url);
+        sidebarButtons.appendChild(btn);
+      });
+    }
+
+    function renderRandomGames() {
+      mainContent.innerHTML = "";
+      const shuffled = [...games].sort(() => 0.5 - Math.random());
+      shuffled.slice(0, 20).forEach(game => {
+        const btn = document.createElement("div");
+        btn.className = "game-button";
+        btn.textContent = game.name.replace(".html", "");
+        btn.onclick = () => openGame(game.raw_url);
+        mainContent.appendChild(btn);
+      });
+    }
+
+    async function openGame(url) {
+      try {
+        const res = await fetch(url);
+        const html = await res.text();
+        gameFrame.srcdoc = html; // run the game inside iframe
+        gameArea.style.display = "flex";
+      } catch (err) {
+        console.error("Failed to load game:", err);
+      }
+    }
+
+    closeGame.addEventListener("click", () => {
+      gameArea.style.display = "none";
+      gameFrame.srcdoc = "";
+    });
+
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase();
+      const filtered = games.filter(g => g.name.toLowerCase().includes(query));
+      renderSidebar(filtered);
+    });
+
+    fetchGames();
+  </script>
+</body>
+  </html>
