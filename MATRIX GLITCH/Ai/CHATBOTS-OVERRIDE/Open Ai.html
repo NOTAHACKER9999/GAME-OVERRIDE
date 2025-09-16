@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Ai</title>
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background-color: #000;
+    }
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+    }
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+</style>
+</head>
+<body>
+
+<div id="overlay">
+    <!-- Sandbox prevents downloads and limits scripts -->
+    <iframe src="https://openai.com/" 
+            sandbox="allow-same-origin allow-forms allow-scripts"
+            referrerpolicy="no-referrer"></iframe>
+</div>
+
+<script>
+    // Disable right-click to prevent "Save As"
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    // Disable keyboard shortcuts that could download files
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && ['s', 'p', 'u', 'Shift', 'i'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+        }
+    });
+</script>
+
+</body>
+</html>
