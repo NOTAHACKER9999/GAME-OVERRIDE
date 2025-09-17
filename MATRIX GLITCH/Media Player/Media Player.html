@@ -22,7 +22,7 @@
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      justify-content: space-between; /* pushes logo to bottom */
+      justify-content: space-between;
     }
 
     #sidebar h2 {
@@ -100,7 +100,7 @@
       flex-direction: column;
     }
 
-    #overlay iframe, #overlay video {
+    #overlay iframe {
       width: 80%;
       height: 70%;
       border: none;
@@ -152,18 +152,62 @@
 
     let recentLinks = [];
 
+    function formatYouTubeURL(url) {
+      try {
+        const u = new URL(url);
+
+        // Handle YouTube + YouTube Music domains
+        if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be") || u.hostname.includes("music.youtube.com")) {
+          let videoId = "";
+          let playlistId = "";
+
+          // Short links: youtu.be/VIDEOID
+          if (u.hostname === "youtu.be") {
+            videoId = u.pathname.slice(1);
+          }
+
+          // Standard YouTube watch?v=VIDEOID
+          if (u.searchParams.get("v")) {
+            videoId = u.searchParams.get("v");
+          }
+
+          // Playlist links
+          if (u.searchParams.get("list")) {
+            playlistId = u.searchParams.get("list");
+          }
+
+          // Build embed URL
+          if (playlistId && !videoId) {
+            return `https://www.youtube.com/embed/videoseries?list=${playlistId}`;
+          } else if (videoId) {
+            let embed = `https://www.youtube.com/embed/${videoId}`;
+            if (playlistId) embed += `?list=${playlistId}`;
+            return embed;
+          }
+        }
+
+        // For non-YouTube links, just return as-is
+        return url;
+
+      } catch (e) {
+        return url; // fallback
+      }
+    }
+
     function openMedia() {
-      const url = searchbar.value.trim();
-      if (!url) return;
+      const rawUrl = searchbar.value.trim();
+      if (!rawUrl) return;
+
+      const formattedUrl = formatYouTubeURL(rawUrl);
 
       // Show overlay
       overlay.style.display = "flex";
 
       // Load into iframe
-      player.src = url;
+      player.src = formattedUrl;
 
       // Save to recent
-      addRecent(url);
+      addRecent(rawUrl);
     }
 
     function closeOverlay() {
@@ -195,4 +239,4 @@
   </script>
 
 </body>
-        </html>
+</html>
