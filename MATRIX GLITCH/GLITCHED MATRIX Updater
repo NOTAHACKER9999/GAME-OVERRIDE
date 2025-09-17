@@ -1,1 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLITCHED MATRIX</title>
+<style>
+  body {
+    margin: 0;
+    background-color: #000;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
 
+  /* Dynamic Island */
+  .dynamic-island {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 0 20px;
+    height: 60px;
+    background-color: #000;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    z-index: 1001;
+  }
+
+  .dynamic-island button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .dynamic-island button:hover {
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* Main iframe container */
+  .iframe-container {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Fullscreen Overlay */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    z-index: 2000;
+  }
+
+  .overlay iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Close Button */
+  .close-btn {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: red;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 2100;
+  }
+</style>
+</head>
+<body>
+
+<div class="dynamic-island">
+  <button onclick="openOverlay('games')">Games</button>
+  <button onclick="openOverlay('anime')">Anime</button>
+  <button onclick="openOverlay('movies')">Movies/Shows</button>
+  <button onclick="openOverlay('ai')">AI</button>
+  <button onclick="openOverlay('media')">Media Players</button>
+</div>
+
+<div class="iframe-container">
+  <iframe src="https://glitched-override-broswer.th15isar0bothi.workers.dev/"></iframe>
+</div>
+
+<!-- Fullscreen Overlay -->
+<div id="overlay" class="overlay">
+  <button class="close-btn" onclick="closeOverlay()">✖</button>
+</div>
+
+<script>
+const overlay = document.getElementById("overlay");
+
+// GitHub raw links for each button
+const links = {
+  games: "https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Games/OVERRIDE-GAMES.html",
+  anime: "https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/SHOWS%20AND%20MOVIES/Anime",
+  movies: "https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/SHOWS%20AND%20MOVIES/Movies%20and%20TV%20shows",
+  ai: "https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Ai/AI%20MATRIX.html",
+  media: "https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Media%20Player/Media%20Player.html"
+};
+
+async function openOverlay(type) {
+  overlay.style.display = "block";
+
+  try {
+    const url = links[type];
+    if (!url) throw new Error("No link found for this button");
+
+    const response = await fetch(url);
+    const htmlCode = await response.text();
+
+    // Clear previous content
+    overlay.innerHTML = '<button class="close-btn" onclick="closeOverlay()">✖</button>';
+
+    // Create iframe
+    const iframe = document.createElement("iframe");
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "none";
+    overlay.appendChild(iframe);
+
+    // Write fetched HTML into iframe
+    iframe.contentWindow.document.open();
+    iframe.contentWindow.document.write(htmlCode);
+    iframe.contentWindow.document.close();
+
+  } catch (err) {
+    console.error("Failed to load overlay content:", err);
+    overlay.innerHTML += `<p style="color:red;">Failed to load content.</p>`;
+  }
+}
+
+function closeOverlay() {
+  overlay.style.display = "none";
+  overlay.innerHTML = '<button class="close-btn" onclick="closeOverlay()">✖</button>';
+}
+</script>
+
+</body>
+</html>
