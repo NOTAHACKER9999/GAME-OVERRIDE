@@ -1,25 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Screen Iframe</title>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-            background-color: black;
-        }
-        iframe {
-            border: none;
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLITCH OVERRIDE PROGRAM RUNNER</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #introImage {
+    width: 70%;
+    max-width: 1000px;
+    opacity: 1;
+    transition: opacity 1s ease;
+  }
+
+  #mainContent {
+    display: none;
+    height: 100%;
+    width: 100%;
+  }
+
+  #mainContent iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+  }
+</style>
 </head>
 <body>
-    <iframe src="https://glitched-matrix.th15isar0bothi.workers.dev/" allowfullscreen></iframe>
+
+<img id="introImage" src="https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Logos/Glitch%20Override%20Logo.png" alt="Studio Logo">
+
+<div id="mainContent">
+  <iframe id="workerFrame" src="https://glitched-matrix.th15isar0bothi.workers.dev/" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
+</div>
+
+<script>
+  const delay = Math.random() * 2000 + 3000; // 3-5 seconds delay
+
+  setTimeout(() => {
+    const img = document.getElementById('introImage');
+    img.style.opacity = 0;
+
+    setTimeout(() => {
+      img.style.display = 'none';
+      const iframe = document.getElementById('workerFrame');
+      document.getElementById('mainContent').style.display = 'block';
+
+      // Try to update title and favicon if same-origin
+      try {
+        document.title = iframe.contentDocument.title || "GLITCH OVERRIDE PROGRAM RUNNER";
+        const ico = iframe.contentDocument.querySelector("link[rel~='icon']");
+        if (ico) {
+          let link = document.querySelector("link[rel~='icon']");
+          if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
+          }
+          link.href = ico.href;
+        }
+      } catch (e) {
+        // Cross-origin fallback: wait for postMessage from worker
+        document.title = "GLITCH OVERRIDE PROGRAM RUNNER";
+      }
+
+      // Listen for postMessage from worker page (cross-origin support)
+      window.addEventListener('message', (event) => {
+        if (event.origin === new URL(iframe.src).origin) {
+          const data = event.data;
+          if (data.title) document.title = data.title;
+          if (data.favicon) {
+            let link = document.querySelector("link[rel~='icon']");
+            if (!link) {
+              link = document.createElement('link');
+              link.rel = 'icon';
+              document.head.appendChild(link);
+            }
+            link.href = data.favicon;
+          }
+        }
+      }, false);
+
+    }, 1000); // fade duration
+  }, delay);
+</script>
+
 </body>
 </html>
