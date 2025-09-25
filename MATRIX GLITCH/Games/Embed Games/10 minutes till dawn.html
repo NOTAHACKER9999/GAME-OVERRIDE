@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Count .html files on GitHub folder</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; padding: 20px; background:#0f0f11; color:#e6e6e6; }
+    .card { background:#121216; border-radius:10px; padding:16px; max-width:900px; margin:0 auto; box-shadow:0 6px 20px rgba(0,0,0,0.6); }
+    input,button { font-size:14px; padding:8px; margin:6px 4px; border-radius:6px; border:1px solid #333; background:#0b0b0d; color:#ddd; }
+    pre { background:#0b0b0d; padding:10px; border-radius:8px; overflow:auto; max-height:320px; }
+    label { user-select:none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Count `.html` files in a GitHub folder</h2>
+
+    <div>
+      <label>Owner: <input id="owner" value="NOTAHACKER9999"></label>
+      <label>Repo: <input id="repo" value="GAME-OVERRIDE"></label>
+    </div>
+
+    <div>
+      <label>Folder path (relative to repo root):</label><br>
+      <input id="path" style="width:98%" value="MATRIX GLITCH/Games/Embed Games">
+    </div>
+
+    <div style="margin-top:8px">
+      <label><input type="checkbox" id="recursive" checked> Count recursively (include subfolders)</label>
+      <button id="run">Count .html files</button>
+      <button id="show-list">Toggle file list</button>
+    </div>
+
+    <div id="status" style="margin-top:12px;">Ready.</div>
+
+    <div id="result" style="margin-top:12px; display:none;">
+      <strong>Total .html files:</strong> <span id="count">0</span>
+      <div style="margin-top:10px"><strong>Files found:</strong></div>
+      <pre id="list" style="display:block"></pre>
+    </div>
+
+    <div style="margin-top:10px; font-size:12px; color:#aaa;">
+      Notes: This uses the GitHub REST contents API (unauthenticated). If you exceed rate limits, the API will return an error. For private repos or higher rate limits provide a token (not included here).
+    </div>
+  </div>
+
+<script>
+  const runBtn = document.getElementById('run');
+  const ownerEl = document.getElementById('owner');
+  const repoEl = document.getElementById('repo');
+  const pathEl = document.getElementById('path');
+  const recursiveEl = document.getElementById('recursive');
+  const statusEl = document.getElementById('status');
+  const countEl = document.getElementById('count');
+  const listEl = document.getElementById('list');
+  const resultDiv = document.getElementById('result');
+  const showListBtn = document.getElementById('show-list');
+
+  showListBtn.addEventListener('click', () => {
+    listEl.style.display = listEl.style.display === 'none' ? 'block' : 'none';
+    resultDiv.style.display = resultDiv.style.display === 'none' ? 'block' : resultDiv.style.display;
+  });
+
+  runBtn.addEventListener('click', async () => {
+    resultDiv.style.display = 'none';
+    statusEl.textContent = 'Fetching...';
+    countEl.textContent = '0';
+    listEl.textContent = '';
+
+    const owner = ownerEl.value.trim();
+    const repo = repoEl.value.trim();
+    const userPath = pathEl.value.trim();
+    const recursive = recursiveEl.checked;
+
+    if (!owner || !repo || !userPath) {
+      statusEl.textContent = 'Please fill owner, repo and path.';
+      return;
+    }
+
+    // prepare API-safe path
+    // GitHub contents API expects the path segments encoded (spaces okay as %20)
+    const apiBase = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/`;
+    const targetPath = userPath.split('/').map(encodeURIComponent).join('/');
+
+    const seenFiles = [];
+    try {
+      await walkAndCollect(apiBase + targetPath, recursive, seenFiles);
+      const htmlFiles = seenFiles.filter(n => n.toLowerCase().endsWith('.html'));
+      countEl.textContent = htmlFiles.length;
+      listEl.textContent = htmlFiles.join('\n') || '(none)';
+      statusEl.textContent = `Done — scanned ${seenFiles.length} files.`;
+      resultDiv.style.display = 'block';
+    } catch (err) {
+      statusEl.textContent = 'Error: ' + (err && err.message ? err.message : String(err));
+      resultDiv.style.display = 'none';
+    }
+  });
+
+  // fetch a path (file or directory). If directory, iterate items; if file, collect it.
+  async function walkAndCollect(url, recursive, collector) {
+    // GitHub API supports CORS; we request the contents endpoint.
+    // If the URL points to a file, the response will be an object. If directory, it's an array.
+    const resp = await fetch(url, { headers: { Accept: 'application/vnd.github.v3+json' }});
+    if (!resp.ok) {
+      // give helpful message
+      const txt = await resp.text().catch(()=>null);
+      throw new Error(`GitHub API returned ${resp.status} ${resp.statusText}${txt ? ' — '+txt.slice(0,200):''}`);
+    }
+    const data = await resp.json();
+
+    if (Array.isArray(data)) {
+      // directory listing
+      for (const item of data) {
+        if (item.type === 'file') {
+          collector.push(item.path);
+        } else if (item.type === 'dir') {
+          if (recursive) {
+            const dirUrl = item.url; // API url for that directory
+            // item.url is already the API URL for contents of that folder
+            await walkAndCollect(dirUrl, recursive, collector);
+          }
+        } else if (item.type === 'symlink' && item.target) {
+          // optional: try to follow symlink (best-effort)
+          try {
+            const syResp = await fetch(item.url, { headers: { Accept: 'application/vnd.github.v3+json' }});
+            if (syResp.ok) {
+              const syData = await syResp.json();
+              if (syData.type === 'file') collector.push(syData.path);
+            }
+          } catch(e){}
+        }
+      }
+    } else if (data && data.type === 'file') {
+      // direct file
+      collector.push(data.path);
+    } else {
+      // unknown shape
+      throw new Error('Unexpected API response shape.');
+    }
+  }
+</script>
+</body>
+</html>
