@@ -9,7 +9,7 @@
 		<script type="text/javascript" src="app.js"></script>
 		<link rel="stylesheet" href="app.css" type="text/css" />
 
-  <title>Fullscreen Overlay</title>
+  <title>1v1.lol</title>
   <style>
     html, body {
       margin: 0;
@@ -30,29 +30,17 @@
       height: 100%;
       border: none;
     }
-    #closeBtn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 10000;
-      padding: 10px 20px;
-      background: red;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+    
   </style>
 </head>
 <body>
 
 <div id="overlay">
-  <button id="closeBtn">Close</button>
   <iframe src="https://1v1.lol"></iframe>
 </div>
 
 <script>
-  document.getElementById('closeBtn').onclick = function() {
-    document.getElementById('overlay').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
   };
 </script>
 
