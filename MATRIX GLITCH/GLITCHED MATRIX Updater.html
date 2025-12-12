@@ -1,126 +1,51 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>GLITCHED MATRIX</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glitchy Waves Notice</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: red;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
 
-<!-- Tab icon -->
-<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Logos/Glitched%20Matrix%20logo.png"/>
+        .message {
+            margin-top: 50px;
+            font-size: 24px;
+        }
 
-<style>
-:root { --bg:#000; --fg:#fff; }
-html,body { height:100%; margin:0; background:#000; color:#fff; font-family:system-ui, Arial, sans-serif; }
+        .logos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
 
-/* Dynamic Island */
-.dynamic-island {
-  position:fixed; top:10px; left:50%; transform:translateX(-50%);
-  display:flex; gap:18px; align-items:center; padding:0 18px; height:60px; background:#000;
-  border-radius:30px; border:1px solid rgba(255,255,255,.16); box-shadow:0 8px 20px rgba(0,0,0,.6); z-index:1001;
-}
-.dynamic-island button {
-  background:none; border:none; color:#fff; font-size:16px; cursor:pointer;
-}
-
-/* GitHub button (floating, top-right) */
-.github-btn {
-  position:fixed; top:20px; right:20px; 
-  width:40px; height:40px; border-radius:50%; 
-  background:#000; border:1px solid #fff;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; z-index:1002; transition:background 0.2s;
-}
-.github-btn:hover { background:#222; }
-.github-btn img { width:22px; height:22px; filter:invert(1); }
-
-.iframe-container { position:absolute; top:80px; left:0; right:0; bottom:0; }
-.iframe-container iframe { width:100%; height:100%; border:0; }
-.overlay {
-  display:none; position:fixed; inset:0; background:#000; color:#fff; z-index:100000;
-}
-.overlay iframe { width:100%; height:100%; border:0; }
-.close-btn { position:fixed; top:10px; right:20px; z-index:99999; background:none; border:none; color:red; font-size:28px; cursor:pointer; }
-/* Bottom-right persistent text */
-#creditText {
-  position:fixed; bottom:5px; right:10px; color:#fff; font-size:12px;
-  z-index:100001; pointer-events:none; opacity:0.8;
-}
-</style>
+        .logos img {
+            width: 150px; /* adjust size if needed */
+            height: auto;
+        }
+    </style>
 </head>
 <body>
+    <div class="message">
+        <strong>Glitched Matrix By Agent Glitch and GLITCH OVERRIDE</strong> has been taken down.<br>
+        To get games you now must pay to play.<br>
+        Contact a <strong>GLITCH OVERRIDE</strong> seller to get the price.
+    </div>
 
-<!-- Dynamic Island -->
-<div class="dynamic-island" id="dynamicIsland">
-  <button id="btnGames">Games</button>
-  <button id="btnAnime">Anime</button>
-  <button id="btnMovies">Movies/Shows</button>
-  <button id="btnAi">AI</button>
-  <button id="btnMedia">Media Players</button>
-</div>
-
-<!-- GitHub button -->
-<a class="github-btn" href="https://github.com/NOTAHACKER9999/GAME-OVERRIDE" target="_blank" title="View GitHub">
-  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/github.svg" alt="GitHub"/>
-</a>
-
-<!-- Main proxy iframe -->
-<div class="iframe-container" id="mainFrameWrapper">
-  <iframe src="https://example.com"></iframe>
-</div>
-
-<!-- Overlay for button content -->
-<div id="buttonOverlay" class="overlay">
-  <button id="closeOverlay" class="close-btn">✖</button>
-  <iframe id="overlayIframe"></iframe>
-</div>
-
-<!-- Persistent bottom-right text -->
-<div id="creditText">made by GLITCH OVERRIDE -LAST UPDATE</div>
-
-<script>
-(async function(){
-
-const overlayEl = document.getElementById("buttonOverlay");
-const overlayIframe = document.getElementById("overlayIframe");
-const closeBtn = document.getElementById("closeOverlay");
-
-const links = {
-  games:"https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Games/OVERRIDE-GAMES.html",
-  anime:"https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/SHOWS%20AND%20MOVIES/Anime",
-  movies:"https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/SHOWS%20AND%20MOVIES/Movies%20and%20TV%20shows",
-  ai:"https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Ai/AI%20MATRIX.html",
-  media:"https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Media%20Player/Media%20Player.html"
-};
-
-async function fetchAndShow(url){
-  try {
-    const res = await fetch(url, {cache:"no-store"});
-    if(!res.ok) throw new Error("Fetch failed: "+res.status);
-    const html = await res.text();
-    overlayIframe.contentWindow.document.open();
-    overlayIframe.contentWindow.document.write(html);
-    overlayIframe.contentWindow.document.close();
-    overlayEl.style.display="block";
-  } catch(e){
-    overlayIframe.contentWindow.document.open();
-    overlayIframe.contentWindow.document.write('<div style="color:#fff;padding:20px;">Failed to load content.</div>');
-    overlayIframe.contentWindow.document.close();
-    overlayEl.style.display="block";
-    console.error(e);
-  }
-}
-
-// Button click handlers
-document.getElementById("btnGames").addEventListener("click",()=>fetchAndShow(links.games));
-document.getElementById("btnAnime").addEventListener("click",()=>fetchAndShow(links.anime));
-document.getElementById("btnMovies").addEventListener("click",()=>fetchAndShow(links.movies));
-document.getElementById("btnAi").addEventListener("click",()=>fetchAndShow(links.ai));
-document.getElementById("btnMedia").addEventListener("click",()=>fetchAndShow(links.media));
-
-// Close overlay
-closeBtn.addEventListener("click",()=>overlayEl.style.display="none");
-
-})();
-</script>
+    <div class="logos">
+        <img src="https://raw.githubusercontent.com/NOTAHACKER9999/Hypper-Drive/refs/heads/main/H.D.%20logo.png" alt="H.D. Logo">
+        <img src="https://raw.githubusercontent.com/NOTAHACKER9999/GAME-OVERRIDE/refs/heads/main/MATRIX%20GLITCH/Logos/Glitch%20Override%20Logo.png" alt="Glitch Override Logo">
+    </div>
 </body>
 </html>
