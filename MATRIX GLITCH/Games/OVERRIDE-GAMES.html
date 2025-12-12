@@ -36,6 +36,8 @@
     color: white;
     outline: none;
   }
+
+  /* Sidebar game buttons */
   .game-button {
     background: black;
     color: white;
@@ -72,7 +74,24 @@
     justify-content: center;
     align-items: flex-start;
   }
-  .content .game-button { width: 200px; }
+
+  /* Main grid game card */
+  .game-card {
+    width: 180px;
+    border: 1px solid white;
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+    background: #111;
+  }
+  .game-card:hover { background:#222; }
+  .game-cover {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border: 1px solid white;
+    margin-bottom: 8px;
+  }
 
   /* Logo */
   .logo {
@@ -112,63 +131,74 @@
 
 <script>
 (function(){
+  const JSON_URL = "https://raw.githubusercontent.com/NOTAHACKER9999/Hypper-Drive/refs/heads/main/Games/zones.json";
+
   const sidebarButtons = document.getElementById("sidebar-buttons");
   const mainContent = document.getElementById("main-content");
   const searchInput = document.getElementById("search");
 
   let games = [];
 
-  // ✅ Fetch JSON
+  // Fetch JSON
   async function fetchGames() {
     try {
-      const res = await fetch("https://override-games.th15isar0bothi.workers.dev/");
+      const res = await fetch(JSON_URL);
       games = await res.json();
       renderSidebar(games);
       renderRandomGames();
-    } catch (e) { console.error("Failed to fetch games:", e); }
+    } catch (e) {
+      console.error("Failed to fetch games:", e);
+    }
   }
 
   function renderSidebar(list) {
     sidebarButtons.innerHTML = "";
     list.sort((a,b)=>a.name.localeCompare(b.name)).forEach(game=>{
-      const btn=document.createElement("div");
-      btn.className="game-button";
-      btn.textContent=game.name.replace(".html","");
-      btn.onclick=()=>openGameInNewTab(game.raw_url);
+      const btn = document.createElement("div");
+      btn.className = "game-button";
+      btn.textContent = game.name;
+      btn.onclick = () => openGameInNewTab(game.url);
       sidebarButtons.appendChild(btn);
     });
   }
 
   function renderRandomGames() {
-    mainContent.innerHTML="";
+    mainContent.innerHTML = "";
     [...games].sort(()=>0.5-Math.random()).slice(0,20).forEach(game=>{
-      const btn=document.createElement("div");
-      btn.className="game-button";
-      btn.textContent=game.name.replace(".html","");
-      btn.onclick=()=>openGameInNewTab(game.raw_url);
-      mainContent.appendChild(btn);
+      const card = document.createElement("div");
+      card.className = "game-card";
+      card.onclick = () => openGameInNewTab(game.url);
+
+      const img = document.createElement("img");
+      img.className = "game-cover";
+      img.src = game.cover;
+
+      const title = document.createElement("div");
+      title.textContent = game.name;
+
+      card.appendChild(img);
+      card.appendChild(title);
+      mainContent.appendChild(card);
     });
   }
 
-  // ✅ Open game in a new about:blank window with blob
   async function openGameInNewTab(url) {
     try {
       const res = await fetch(url);
       let html = await res.text();
 
-      // Inject <base> for relative assets
+      // Inject <base> for asset fixing
       const base = url.substring(0, url.lastIndexOf("/") + 1);
       if (!html.includes("<base")) {
-        html = html.replace(/<head[^>]*>/i, match => `${match}\n<base href="${base}">`);
+        html = html.replace(/<head[^>]*>/i,
+          match => `${match}\n<base href="${base}">`
+        );
       }
 
       const blob = new Blob([html], { type: "text/html" });
       const blobURL = URL.createObjectURL(blob);
-
-      // Open in new window/tab
       window.open(blobURL, "_blank");
 
-      // Note: browser will handle closing tab naturally
     } catch(err){ 
       console.error("Failed to load game:", err); 
       alert("Failed to load game.");
@@ -177,7 +207,7 @@
 
   searchInput.addEventListener("input",()=>{
     const query = searchInput.value.toLowerCase();
-    const filtered = games.filter(g=>g.name.toLowerCase().includes(query));
+    const filtered = games.filter(g => g.name.toLowerCase().includes(query));
     renderSidebar(filtered);
   });
 
